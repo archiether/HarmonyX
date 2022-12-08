@@ -5,9 +5,9 @@
 var target = Argument("target", "Build");
 var nugetKey = Argument("nugetKey", "");
 
-string RunGit(string command, string separator = "") 
+string RunGit(string command, string separator = "")
 {
-    using(var process = StartAndReturnProcess("git", new ProcessSettings { Arguments = command, RedirectStandardOutput = true })) 
+    using(var process = StartAndReturnProcess("git", new ProcessSettings { Arguments = command, RedirectStandardOutput = true }))
     {
         process.WaitForExit();
         return string.Join(separator, process.GetStandardOutput());
@@ -47,7 +47,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
 {
-	var testTargets = new [] { "net35", "netcoreapp3.1", "net6.0" };
+	var testTargets = new [] { "net35", "netcoreapp3.1", "net6.0", "net7.0" };
 	foreach (var target in testTargets)
 	{
 	    Information($"Testing {target}");
@@ -61,12 +61,12 @@ Task("Test")
 
 Task("Publish")
     .IsDependentOn("Build")
-    .Does(() => 
+    .Does(() =>
 {
     var version = FindRegexMatchGroupInFile("./Harmony/Harmony.csproj", @"<Version>(.*)<\/Version>", 1, System.Text.RegularExpressions.RegexOptions.IgnoreCase);
     var versionTagPresent = !string.IsNullOrWhiteSpace(RunGit($"ls-remote --tags origin v{version}"));
 
-    if(versionTagPresent) 
+    if(versionTagPresent)
     {
         Information("New version exists, no need to push.");
         return;
